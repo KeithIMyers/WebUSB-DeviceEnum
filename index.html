@@ -32,35 +32,22 @@
     <div id="device-list" class="device-info"></div>
 
     <script>
-        document.getElementById('list-devices').addEventListener('click', async () => {
-            try {
-                // Request access to the USB device
-                const device = await navigator.usb.requestDevice({ filters: [] });
+        document.getElementById('list-devices').addEventListener('click', () => {
+            navigator.usb.getDevices().then(devices => {
+                console.log(`Total devices: ${devices.length}`);
+                let deviceListHTML = `<p>Total devices: ${devices.length}</p>`;
 
-                // Open the device
-                await device.open();
-                if (device.configuration === null)
-                    await device.selectConfiguration(1);
+                devices.forEach(device => {
+                    console.log(`Product name: ${device.productName}, serial number ${device.serialNumber}`);
+                    deviceListHTML += `<p>Product name: ${device.productName}, serial number ${device.serialNumber}</p>`;
+                });
 
-                // Claim the interface
-                await device.claimInterface(0);
-
-                // Display device details
-                displayDevice(device);
-            } catch (error) {
+                document.getElementById('device-list').innerHTML = deviceListHTML;
+            }).catch(error => {
                 console.error('Error:', error);
                 document.getElementById('device-list').innerText = 'Error: ' + error.message;
-            }
+            });
         });
-
-        function displayDevice(device) {
-            const info = `
-                <p>Product Name: ${device.productName}</p>
-                <p>Manufacturer Name: ${device.manufacturerName}</p>
-                <p>Serial Number: ${device.serialNumber}</p>
-            `;
-            document.getElementById('device-list').innerHTML = info;
-        }
     </script>
 </body>
 </html>
