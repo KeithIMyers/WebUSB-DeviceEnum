@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USB Devices List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000033; /* Dark blue background */
+            color: white; /* White text color */
+        }
+        button {
+            background-color: #0044cc; /* Darker blue button */
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #002299;
+        }
+        .device-info {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>USB Devices</h1>
+    <button id="list-devices">List USB Devices</button>
+    <div id="device-list" class="device-info"></div>
+
+    <script>
+        document.getElementById('list-devices').addEventListener('click', async () => {
+            try {
+                // Request access to the USB device
+                const device = await navigator.usb.requestDevice({ filters: [] });
+
+                // Open the device
+                await device.open();
+                if (device.configuration === null)
+                    await device.selectConfiguration(1);
+
+                // Claim the interface
+                await device.claimInterface(0);
+
+                // Display device details
+                displayDevice(device);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('device-list').innerText = 'Error: ' + error.message;
+            }
+        });
+
+        function displayDevice(device) {
+            const info = `
+                <p>Product Name: ${device.productName}</p>
+                <p>Manufacturer Name: ${device.manufacturerName}</p>
+                <p>Serial Number: ${device.serialNumber}</p>
+            `;
+            document.getElementById('device-list').innerHTML = info;
+        }
+    </script>
+</body>
+</html>
